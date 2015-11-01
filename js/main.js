@@ -2,9 +2,10 @@ var w         = $( window ).width(),
 h             = $( window ).height(),
 canvas        = $( "#space" )[0],
 canvasCtx     = canvas.getContext('2d'),
-canvas.width  = w,
-canvas.height = h,
 center        = new vector([w/2,h/2]);
+canvas.width  = w
+canvas.height = h
+
 
 // simple function to render a circle to the canvas
 function renderCircle(p,r,c){
