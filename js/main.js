@@ -31,16 +31,25 @@ function convert_rel_to_abs(rel_vec){
 // initial position of mouse
 absolute_mouse_position = new vector([w/2,h/2])
 relative_mouse_position = convert_abs_to_rel(absolute_mouse_position)
+mouse_velocity = zeroVector(2)
 
 // gets the position of the mouse whenever it is moved
 $( "html" ).mousemove(function( event ) {
   absolute_mouse_position.x = event.pageX
   absolute_mouse_position.y = event.pageY
+
+  // currently in pixels per sample time (sample time is variable but not much)
+  mouse_velocity = convert_abs_to_rel(absolute_mouse_position).subtract(relative_mouse_position)
   relative_mouse_position = convert_abs_to_rel(absolute_mouse_position)
+
 });
 
 // Example movement schemes should go here
 // =======================================================
+
+// mouse_velocity is the vector velocity of the mouse
+// relative_mouse_position is the vector position of the mouse
+
 function control_scheme(c, idx, arr){
   // c.p is the position of the dummy circles
   // c.v is the velocity of the dummy circles
@@ -58,17 +67,26 @@ function control_scheme(c, idx, arr){
 
 function control_scheme(c, idx, arr){
   // the relative mosue position controls velocity
+  c.v = c.v.add(mouse_velocity.scale(-1))
+  c.p = c.p.add(c.v)
+  renderCircle(convert_rel_to_abs(c.p),c.r,'white')
+}
+
+function control_scheme(c, idx, arr){
+  // the relative mosue position controls velocity
   c.v = relative_mouse_position.scale(-dt/40.)
   c.p = c.p.add(c.v)
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
+
+
 
 // make sure to put the one you are testing at the end or comment all the others
 // ========================================================
 
 // generate a list of positions and radii for the dummy circles
 DummyCircles = []
-for (var i = 0; i < 20; i++) {
+for (var i = 0; i < 50; i++) {
   r = 10+Math.random()*30
   p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
   DummyCircles.push({r:r,p:p,v:zeroVector(2)})
@@ -80,6 +98,8 @@ function step()
   // clears the canvas for new visuals
   canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
   dt = 1
+
+  console.log(mouse_velocity.vals)
 
   // This represents the player
   renderCircle(convert_rel_to_abs(zeroVector(2)),10,'red')
