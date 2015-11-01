@@ -58,7 +58,18 @@ textarea {
 
 * {cursor: none;}
 
+#space{
+  z-index:-1;
+  position: absolute;
+  margin:0px auto;
+  top:0;
+  left:0;
+  background: #222;
+}
 
+p{
+  color:white;
+}
 
 
 
