@@ -5,7 +5,7 @@ canvasCtx     = canvas.getContext('2d'),
 center        = new vector([w/2,h/2]);
 canvas.width  = w
 canvas.height = h
-
+dt = .25
 
 // simple function to render a circle to the canvas
 function renderCircle(p,r,c){
@@ -14,6 +14,15 @@ function renderCircle(p,r,c){
 	canvasCtx.arc(p.x, p.y,r, 0, 2 * Math.PI, false);
 	canvasCtx.fillStyle = c;
 	canvasCtx.fill();
+}
+
+function renderLine(v1,v2){
+  v1 = convert_rel_to_abs(v1)
+  v2 = convert_rel_to_abs(v2)
+  canvasCtx.beginPath();
+  canvasCtx.moveTo(v1.x,v1.y);
+  canvasCtx.lineTo(v2.x,v2.y);
+  canvasCtx.stroke();
 }
 
 // convert from screen coordinates to standard x,y coordinates with 0,0 in the center of the screen
@@ -29,14 +38,13 @@ function convert_rel_to_abs(rel_vec){
 }
 
 // initial position of mouse
-absolute_mouse_position = new vector([w/2,h/2])
-relative_mouse_position = convert_abs_to_rel(absolute_mouse_position)
+relative_mouse_position = zeroVector(2)
 mouse_velocity = zeroVector(2)
 
 // gets the position of the mouse whenever it is moved
 $( "html" ).mousemove(function( event ) {
-  absolute_mouse_position.x = event.pageX
-  absolute_mouse_position.y = event.pageY
+  absolute_mouse_position = new vector([event.pageX,event.pageY])
+  relative_mouse_position = convert_abs_to_rel(absolute_mouse_position)
 
   // currently in pixels per sample time (sample time is variable but not much)
   mouse_velocity = convert_abs_to_rel(absolute_mouse_position).subtract(relative_mouse_position)
@@ -44,11 +52,19 @@ $( "html" ).mousemove(function( event ) {
 
 });
 
+function getForce(c, idx, arr){
+  // add each contribution to the netForce
+  d = c.p.magnitude()
+  net_acceleration = net_acceleration.add(c.p.norm().scale(1000/Math.pow(d,2)))
+}
+
+
+
 // Example movement schemes should go here
 // =======================================================
 
 // mouse_velocity is the vector velocity of the mouse
-// relative_mouse_position is the vector position of the mouse
+// relative_mouse_position is the vector posi of the mouse
 
 function control_scheme(c, idx, arr){
   // c.p is the position of the dummy circles
@@ -58,7 +74,7 @@ function control_scheme(c, idx, arr){
 }
 
 function control_scheme(c, idx, arr){
-  // the relative mosue position controls acceleration
+  // the relative mouse position controls acceleration
   a = relative_mouse_position.scale(-dt/4000.)
   c.v = c.v.add(a)
   c.p = c.p.add(c.v)
@@ -66,18 +82,36 @@ function control_scheme(c, idx, arr){
 }
 
 function control_scheme(c, idx, arr){
-  // the relative mosue position controls velocity
+  // the mouse velocity controls velocity
   c.v = c.v.add(mouse_velocity.scale(-1))
   c.p = c.p.add(c.v)
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
 function control_scheme(c, idx, arr){
-  // the relative mosue position controls velocity
-  c.v = relative_mouse_position.scale(-dt/40.)
-  c.p = c.p.add(c.v)
+  // the mouse velocity controls velocity and masses fall towards you
+  d = c.p.magnitude()
+  a = c.p.norm().scale(10000/Math.pow(d,1.3))
+  // console.log(a.vals)
+  // relative_mouse_position.scale(-dt/40)
+  c.v = c.v.subtract(a.scale(dt))
+  // c.v = a.scale(-dt))
+  c.p = c.p.add(c.v.scale(dt))
+  c.p = c.p.add(relative_mouse_position.scale(-dt/40))
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
+
+function control_scheme(c, idx, arr){
+  // masses stay in fixed configuration but change your acceleration and relative mouse position corrosponds to acceleration
+  a   = net_acceleration.scale(10)
+  a   = a.add(relative_mouse_position.scale(dt/150.))
+  c.v = c.v.subtract(a.scale(dt))
+  c.p = c.p.add(c.v.scale(dt))
+  renderCircle(convert_rel_to_abs(c.p),c.r,'white')
+}
+
+
+
 
 
 
@@ -86,20 +120,29 @@ function control_scheme(c, idx, arr){
 
 // generate a list of positions and radii for the dummy circles
 DummyCircles = []
-for (var i = 0; i < 50; i++) {
+for (var i = 0; i < 5; i++) {
   r = 10+Math.random()*30
   p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
   DummyCircles.push({r:r,p:p,v:zeroVector(2)})
 }
+
 
 // this is a single step of the animation
 function step()
 {
   // clears the canvas for new visuals
   canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-  dt = 1
 
-  console.log(mouse_velocity.vals)
+  // this is the net gravitational acceleration from all masses
+  net_acceleration = zeroVector()
+  DummyCircles.forEach(getForce)
+
+  // this shows the acceleration due to the masses
+  // the direction and scaled magnitude of mouse input
+  // and the net acceleration
+  renderLine(zeroVector(),relative_mouse_position.scale(dt/150.).scale(100))
+  renderLine(zeroVector(),net_acceleration.scale(10).scale(100))
+  renderLine(zeroVector(),relative_mouse_position.scale(dt/150.).scale(100).add(net_acceleration.scale(10).scale(100)))
 
   // This represents the player
   renderCircle(convert_rel_to_abs(zeroVector(2)),10,'red')
