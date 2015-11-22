@@ -105,7 +105,21 @@ function control_scheme(c, idx, arr){
   // masses stay in fixed configuration but change your acceleration and relative mouse position corrosponds to acceleration
   a   = net_acceleration.scale(10)
   a   = a.add(relative_mouse_position.scale(dt/150.))
+
   c.v = c.v.subtract(a.scale(dt))
+  oscillator.frequency.value = c.v.magnitude()*20;
+  if (colors == 1)
+  {
+    gainNode.gain.value = .1;
+    
+    $('#space').css('background',"hsl("+Math.atan2(c.v.y,c.v.x)/(2*Math.PI)*360+","+2*c.v.magnitude()+"%,10%)")
+
+      }
+  else  
+  {
+  gainNode.gain.value =0;
+  }
+  
   c.p = c.p.add(c.v.scale(dt))
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
@@ -125,7 +139,14 @@ for (var i = 0; i < 5; i++) {
   p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
   DummyCircles.push({r:r,p:p,v:zeroVector(2)})
 }
+colors = -1
 
+$(window).keypress(function (e) {
+  if (e.keyCode === 0 || e.keyCode === 32) {
+    e.preventDefault()
+    colors=colors*-1
+  }
+})
 
 // this is a single step of the animation
 function step()
@@ -137,6 +158,7 @@ function step()
   net_acceleration = zeroVector()
   DummyCircles.forEach(getForce)
 
+
   // this shows the acceleration due to the masses
   // the direction and scaled magnitude of mouse input
   // and the net acceleration
@@ -147,8 +169,12 @@ function step()
   // This represents the player
   renderCircle(convert_rel_to_abs(zeroVector(2)),10,'red')
 
+
+
   // This is where
   DummyCircles.forEach(control_scheme)
+
+
 
   window.requestAnimationFrame(step);
 }
