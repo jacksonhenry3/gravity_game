@@ -2,8 +2,8 @@
 
 require([
 	"js/util.js",
-	"js/graphics.js",
 	"js/vector.js",
+	"js/graphics.js",
 	"js/audio.js",
 	"js/main.js"
 ]);

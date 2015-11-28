@@ -1,47 +1,18 @@
-require["./vector"]
-
-var w         = $( window ).width(),
-h             = $( window ).height(),
-canvas        = $( "#space" )[0],
-canvasCtx     = canvas.getContext('2d'),
-center        = new vector([w/2,h/2]);
-canvas.width  = w
-canvas.height = h
+// Physical choices
 dt = .25
-
-// simple function to render a circle to the canvas
-function renderCircle(p,r,c){
-  // circle at position p with radius r and color c
-	canvasCtx.beginPath();
-	canvasCtx.arc(p.x, p.y,r, 0, 2 * Math.PI, false);
-	canvasCtx.fillStyle = c;
-	canvasCtx.fill();
-}
-
-function renderLine(v1,v2){
-  v1 = convert_rel_to_abs(v1)
-  v2 = convert_rel_to_abs(v2)
-  canvasCtx.beginPath();
-  canvasCtx.moveTo(v1.x,v1.y);
-  canvasCtx.lineTo(v2.x,v2.y);
-  canvasCtx.stroke();
-}
-
-// convert from screen coordinates to standard x,y coordinates with 0,0 in the center of the screen
-function convert_abs_to_rel(abs_vec){
-  rel_vec = new vector([abs_vec.x-center.x,-abs_vec.y+center.y]);
-  return(rel_vec)
-}
-
-// convert from standard x,y coordinates with 0,0 at the center of the screen to screen coordinates
-function convert_rel_to_abs(rel_vec){
-  abs_vec = new vector([rel_vec.x+center.x,-rel_vec.y+center.y]);
-  return(abs_vec)
-}
+circleColor = "white"
 
 // initial position of mouse
 relative_mouse_position = zeroVector(2)
 mouse_velocity = zeroVector(2)
+
+// Defines the player's properties
+player = {
+  vel: zeroVector(2),
+  accel: zeroVector(2),
+  radius: 10,
+  color: 'red'
+}
 
 // gets the position of the mouse whenever it is moved
 $( "html" ).mousemove(function( event ) {
@@ -54,12 +25,23 @@ $( "html" ).mousemove(function( event ) {
 
 });
 
-function getForce(c, idx, arr){
-  // add each contribution to the netForce
+function getCircleForce(c){
+  // Returns the force exerted by a circle on the player
   d = c.p.magnitude()
-  net_acceleration = net_acceleration.add(c.p.norm().scale(1000/Math.pow(d,2)))
+  return c.p.norm().scale(1000/Math.pow(d,2))
 }
 
+// Example mouse forces below
+
+function getMouseForce1(){
+  return relative_mouse_position.scale(dt/150.)
+}
+
+function getMouseForce2(){
+  return 0
+}
+
+getMouseForce = getMouseForce1
 
 
 // Example movement schemes should go here
@@ -68,14 +50,14 @@ function getForce(c, idx, arr){
 // mouse_velocity is the vector velocity of the mouse
 // relative_mouse_position is the vector posi of the mouse
 
-function control_scheme(c, idx, arr){
+function control_scheme1(c){
   // c.p is the position of the dummy circles
   // c.v is the velocity of the dummy circles
   // c.r is the radius of each dummy circle
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
-function control_scheme(c, idx, arr){
+function control_scheme2(c){
   // the relative mouse position controls acceleration
   a = relative_mouse_position.scale(-dt/4000.)
   c.v = c.v.add(a)
@@ -83,14 +65,14 @@ function control_scheme(c, idx, arr){
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
-function control_scheme(c, idx, arr){
+function control_scheme3(c){
   // the mouse velocity controls velocity
   c.v = c.v.add(mouse_velocity.scale(-1))
   c.p = c.p.add(c.v)
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
-function control_scheme(c, idx, arr){
+function control_scheme4(c){
   // the mouse velocity controls velocity and masses fall towards you
   d = c.p.magnitude()
   a = c.p.norm().scale(10000/Math.pow(d,1.3))
@@ -103,36 +85,33 @@ function control_scheme(c, idx, arr){
   renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
-function control_scheme(c, idx, arr){
+function control_scheme5(c){
   // masses stay in fixed configuration but change your acceleration and relative mouse position corrosponds to acceleration
-  a   = net_acceleration.scale(10)
-  a   = a.add(relative_mouse_position.scale(dt/150.))
-
+  a = player.accel.scale(10)  
   c.v = c.v.subtract(a.scale(dt))
-  oscillator.frequency.value = c.v.magnitude()*20;
+  c.p = c.p.add(c.v.scale(dt))
+}
+
+// Choice of control scheme
+control_scheme = control_scheme5
+
+function updateColorAndSound() {
+  // Controls sound and color
+  oscillator.frequency.value = player.vel.magnitude()*20;
   if (colors == 1)
   {
     gainNode.gain.value = .1;
-    
-    $('#space').css('background',"hsl("+Math.atan2(c.v.y,c.v.x)/(2*Math.PI)*360+","+2*c.v.magnitude()+"%,10%)")
-
-      }
+    $('#space').css('background',"hsl("+Math.atan2(player.vel.y, player.vel.x)/(2*Math.PI)*360+","+2*player.vel.magnitude()+"%,10%)")
+  }
   else  
   {
-  gainNode.gain.value =0;
+    gainNode.gain.value =0;
   }
-  
-  c.p = c.p.add(c.v.scale(dt))
-  renderCircle(convert_rel_to_abs(c.p),c.r,'white')
 }
 
-
-
-
-
-
-// make sure to put the one you are testing at the end or comment all the others
-// ========================================================
+function renderGameCircle(c) {
+  renderCircle(convert_rel_to_abs(c.p), c.r, circleColor)
+}
 
 // generate a list of positions and radii for the dummy circles
 DummyCircles = []
@@ -147,6 +126,9 @@ $(window).keypress(function (e) {
   if (e.keyCode === 0 || e.keyCode === 32) {
     e.preventDefault()
     colors=colors*-1
+    
+    // TEST
+    console.log("colors = "+colors)
   }
 })
 
@@ -157,26 +139,34 @@ function step()
   canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
   // this is the net gravitational acceleration from all masses
-  net_acceleration = zeroVector()
-  DummyCircles.forEach(getForce)
-
+  player.accel = zeroVector()
+  for(var i=0; i<DummyCircles.length; i++) {
+    player.accel = player.accel.add(getCircleForce(DummyCircles[i]))
+  }
+  player.accel = player.accel.add(getMouseForce())
+  
+  player.vel = player.vel.add(player.accel)
+  
+  // This represents the player
+  renderCircle(convert_rel_to_abs(zeroVector(2)), player.radius, player.color)
 
   // this shows the acceleration due to the masses
   // the direction and scaled magnitude of mouse input
   // and the net acceleration
-  renderLine(zeroVector(),relative_mouse_position.scale(dt/150.).scale(100))
-  renderLine(zeroVector(),net_acceleration.scale(10).scale(100))
-  renderLine(zeroVector(),relative_mouse_position.scale(dt/150.).scale(100).add(net_acceleration.scale(10).scale(100)))
-
-  // This represents the player
-  renderCircle(convert_rel_to_abs(zeroVector(2)),10,'red')
-
-
-
-  // This is where
+  renderLine(zeroVector(), relative_mouse_position.scale(dt/150.).scale(100))
+  renderLine(zeroVector(), player.accel.scale(10).scale(100))
+  renderLine(zeroVector(), relative_mouse_position.scale(dt/150.).scale(100).add(player.accel.scale(10).scale(100)))
+  
+  // Controls movement
   DummyCircles.forEach(control_scheme)
+  
+  // Renders all circles
+  DummyCircles.forEach(renderGameCircle)
+  
+  // Handles colors and sounds
+  updateColorAndSound()
 
-
+  
 
   window.requestAnimationFrame(step);
 }
