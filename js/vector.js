@@ -57,6 +57,11 @@ function vector (vals) {
 
 		return(answer);
 	}
+	 
+	this.mul = function(num)
+	{
+		this.vals.forEach(function(element, index, array){array[index] *= num})
+	}
 
 	this.dot = function(v)
 	{
@@ -93,6 +98,18 @@ function vector (vals) {
 	this.norm = function()
 	{
 		return(this.scale(1/this.magnitude()));
+	};
+	
+	this.project = function(v)
+	{
+		// Projects this onto v
+		return(this.dot(v.norm()))
+	};
+	
+	this.limit = function(maxMag)
+	{
+		// Limits the magnitude of this to maxMag
+		
 	};
 }
 
