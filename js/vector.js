@@ -31,7 +31,7 @@ function vector (vals) {
 			this.vals)))
 	}
 	 
-	this.scalarMul = function(n)
+	this.scale = function(n)
 	{
 		return(new vector(map(
 			function(x){return x*n},
@@ -40,29 +40,8 @@ function vector (vals) {
 
 	this.dot = function(v)
 	{
-		if (this.length!=v.length)
-		{
-			throw "Vectors must be the same size";
-		}
-		var total = this.x*v.x+this.y*v.y;
-		if (this.length ===3)
-		{
-			total+=this.z*v.z;
-		}
-		return(total);
-	};
-
-	this.scale = function(scale)
-	{
-		dx = this.x*scale;
-		dy = this.y*scale;
-		answer = new vector([dx,dy])
-		if (this.length===3)
-		{
-			dz = this.z*scale;
-			answer = new vector([dx,dy,dz])
-		}
-		return(answer);
+		function mulElement(x,y) {return x*y}
+		return(sum(join(mulElement, this.vals, v.vals)))
 	};
 
 	this.magnitude = function()
@@ -83,8 +62,15 @@ function vector (vals) {
 	
 	this.limit = function(maxMag)
 	{
+		if(maxMag < 0) {
+			throw "maxMag must be a nonnegative number"
+		}
 		// Limits the magnitude of this to maxMag
-		
+		currMag = this.magnitude()
+		if(currMag != 0 && currMag > maxMag) {
+			return this.scale(maxMag/currMag);
+		}
+		return this;
 	};
 }
 

@@ -2,11 +2,12 @@
 
 function map(func, arr)
 {
-	// Replaces all elements arr[i] with func(arr[i])
+	// Returns a new array arr2 such that arr2[i] = func(arr[i])
+	newArr = []
 	for(var i=0; i<arr.length; i++) {
-		arr[i] = func(arr[i])
+		newArr[i] = func(arr[i])
 	}
-	return arr
+	return newArr
 }
 
 function join(func, arr1, arr2)
@@ -19,15 +20,16 @@ function join(func, arr1, arr2)
 		throw "Arrays must be the same size";
 	}
 	
-	arr = []
+	newArr = []
 	for(var i=0; i<arr1.length; i++) {
-		arr = arr.concat(func(arr1[i], arr2[i]))
+		newArr[i] = func(arr1[i], arr2[i])
 	}
-	return arr
+	return newArr
 }
 
 function sum(arr)
 {
-	// Sums an array
+	// Sums an array of any length
+	if(arr.length == 0){return(0)} 
 	return arr.reduce(function(prevVal, currVal, currIndex, arr){return prevVal+currVal})
 }
