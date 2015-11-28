@@ -1,3 +1,5 @@
+// Defines a vector object
+
 function vector (vals) {
 	this.length = 2;
 	this.x      = vals[0];

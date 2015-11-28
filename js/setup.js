@@ -5,6 +5,7 @@ require([
 	"js/vector.js",
 	"js/graphics.js",
 	"js/audio.js",
+	"js/world.js",
 	"js/main.js"
 ]);
 
