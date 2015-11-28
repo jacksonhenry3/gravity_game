@@ -59,7 +59,7 @@ function vector (vals) {
 	this.project = function(v)
 	{
 		// Projects this onto v
-		return(this.dot(v.norm()))
+		return(v.norm().scale(this.dot(v.norm())))
 	};
 	
 	this.limit = function(maxMag)

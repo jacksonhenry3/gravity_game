@@ -44,7 +44,7 @@ function registerMouseEvents() {
     
     // Determines new positions
     mouse.absPos = new vector([event.pageX,event.pageY])
-    mouse.relPos = convert_abs_to_rel(mouse.absPos)
+    mouse.relPos = absToGame(mouse.absPos)
 
     // Calculates velocity. Unit: Pixels / sample time
     mouse.vel = mouse.relPos.subtract(prevRelPos)
@@ -62,11 +62,13 @@ setInterval(physicsStep, 25);
 // A single step of the animation
 function renderStep()
 {
-  // clears the canvas for new visuals
+  // Clears the canvas for new visuals
   canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
   
   player.render()
-  planets.forEach(function(p){p.render()})
+  for(var i=0; i<planets.length; i++) {
+    planets[i].render()
+  }
   
   // Lines demonstrating mouse accel (white), net accel (yellow), and current velocity (green)
   mouseAccel = mouse.relPos.scale(dt/150.).scale(1000.)
