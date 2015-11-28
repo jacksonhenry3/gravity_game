@@ -9,10 +9,15 @@
 
         <link rel="stylesheet" href="css/normalize.min.css">
         <link rel="stylesheet" href="css/main.css">
-
-        <!-- <script src="js/vendor/modernizr-2.8.3.min.js"></script> -->
-        <!-- <script src="js/vector.js"></script> -->
-    </head>
+        
+        <!-- 3rd party scripts -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+        
+        <!-- Loads app scripts -->
+        <script data-main="js/setup.js" src="js/require.js"></script>
+        
+        </head>
     <body>
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -20,14 +25,6 @@
 
 
         <canvas id = 'space'></canvas>
-<div id = 'psychadellic' style = 'background:white;padding:10px;'>Hit space for colors and sound</button>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
-
-        <!-- <script src="js/main.js"></script> -->
-        <!-- <script src="js/audio.js"></script> -->
-        
-        <script src="js/add_modules.js"></script>
-        <script src="js/setup.js"></script>
+        <div id = 'psychadellic' style = 'background:white;padding:10px;'>Hit space for colors and sound</button>
     </body>
 </html>

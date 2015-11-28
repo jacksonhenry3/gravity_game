@@ -10,57 +10,32 @@ function vector (vals) {
 		this.z = vals[2];
 	}
 
-	this.subtract = function(v)
-	{
-		if (this.length!=v.length)
-		{
-			throw "Vectors must be the same size";
-		}
-		dx = this.x-v.x;
-		dy = this.y-v.y;
-		answer = new vector([dx,dy])
-		if (this.length == 3)
-		{
-			dz = this.z-v.z;
-			answer = new vector([dx,dy,dz])
-		}
-		return(answer)
-	};
-
 	this.add = function(v)
 	{
-		if (this.length!=v.length)
-		{
-			throw "Vectors must be the same size";
-		}
-		dx = this.x+v.x;
-		dy = this.y+v.y;
-		answer = new vector([dx,dy])
-		if (this.length == 3)
-		{
-			dz = this.z+v.z;
-			answer = new vector([dx,dy,dz])
-		}
-		return(answer)
+		addElement = function(x,y){return x+y}
+		newVals = join(addElement, this.vals, v.vals)
+		return(new vector(newVals))
+	};
+
+	this.subtract = function(v)
+	{
+		subtractElement = function(x,y){return x-y}
+		newVals = join(subtractElement, this.vals, v.vals)
+		return(new vector(newVals))
 	};
 
 	this.scalarAdd = function(n)
 	{
-		dx = this.x+n
-		dy = this.y+n
-		answer = new vector([dx,dy])
-		if (this.length === 3)
-		{
-			dz = this.z+n
-			answer = new vector([dx,dy,dz])
-		}
-
-		return(answer);
+		return(new vector(map(
+			function(x){return x+n},
+			this.vals)))
 	}
 	 
-	this.mul = function(num)
+	this.scalarMul = function(n)
 	{
-		this.vals.forEach(function(element, index, array){array[index] *= num})
+		return(new vector(map(
+			function(x){return x*n},
+			this.vals)))
 	}
 
 	this.dot = function(v)

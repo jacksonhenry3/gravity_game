@@ -1,3 +1,5 @@
+require["./vector"]
+
 var w         = $( window ).width(),
 h             = $( window ).height(),
 canvas        = $( "#space" )[0],
