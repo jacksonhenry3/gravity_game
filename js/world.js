@@ -83,25 +83,39 @@ controlScheme = controlScheme1
 
 // Collision handling
 
-// // Returns the planet colliding with player if one exists, else returns false
-// function detectCollision(player1, planets1) {
-//   for(var i=0; i<planets1.length; i++) {
-//     currPlanet = planets1[i]
+// Returns the planet colliding with player if one exists, else returns false
+function detectCollision(player1, planets1) {
+  for(var i=0; i<planets1.length; i++) {
+    currPlanet = planets1[i]
     
-//     distVector = player1.pos.subtract(currPlanet.pos)
-//     dist = distVector.magnitude()
-//     collisionDist = player1.radius + currPlanet.radius
-//     if(dist < collisionDist) {
-//       // Collision detected. Returns the colliding planet
-//       return currPlanet
-//     }
-//   }
-//   // No planet found
-//   return false
-// }
+    distVector = player1.pos.subtract(currPlanet.pos)
+    dist = distVector.magnitude()
+    collisionDist = player1.radius + currPlanet.radius
+    if(dist < collisionDist) {
+      // Collision detected. Returns the colliding planet
+      return currPlanet
+    }
+  }
+  // No planet found
+  return false
+}
 
-// // Resolves a collision between player1 and planet1
-// function resolveCollision(player1, planet1) {
-//   distVector = player.pos.subtract(planet1.pos)
-//   if(distVector < )
-// }
+// Resolves a collision between player1 and planet1
+function resolveCollision(player1, planet1) {
+  distVector = player1.pos.subtract(planet1.pos)
+  
+  // Translates player out of planet
+  requiredDist = planet1.radius + player1.radius
+  mtv = distVector.norm().scale(requiredDist).subtract(distVector)
+  player1.pos = player1.pos.add(mtv)
+  
+  // Changes the velocity (if the player is traveling into the planet)
+  velDirection = player1.vel.dot(distVector)
+  if(velDirection < 0) {
+    console.log("Reversing the velocity")
+    
+    // Calculates the parallel component of the player's velocity and reverses it
+    parallelVel = player1.vel.project(distVector)
+    player1.vel = player1.vel.subtract(parallelVel.scale(2))
+  }
+}

@@ -55,7 +55,14 @@ registerMouseEvents()
 // A single step of the physics
 function physicsStep()
 {
+  // Controls the player's motion
   controlScheme(player, planets, mouse)
+  
+  // Deals with collisions
+  collisionPlanet = detectCollision(player, planets)
+  if(collisionPlanet) {
+    resolveCollision(player, collisionPlanet)
+  }
 }
 setInterval(physicsStep, 25);
 
