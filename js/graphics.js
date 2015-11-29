@@ -18,9 +18,19 @@ function gameToAbs(game_vec){
   return(abs_vec)
 }
 
-// simple function to render a circle to the canvas
-function renderCircle(p, r, c){
-  // circle at position p with radius r and color c
+// Draws a filled circle to the canvas
+function drawCircle(p, r, c){
+  // Circle at position p with radius r and color c
+  	p = gameToAbs(p)
+	canvasCtx.beginPath();
+	canvasCtx.arc(p.x, p.y,r, 0, 2 * Math.PI, false);
+	canvasCtx.strokeStyle = c;
+	canvasCtx.stroke();
+}
+
+// Draws a filled circle to the canvas
+function fillCircle(p, r, c){
+  // Circle at position p with radius r and color c
   	p = gameToAbs(p)
 	canvasCtx.beginPath();
 	canvasCtx.arc(p.x, p.y,r, 0, 2 * Math.PI, false);
@@ -28,8 +38,8 @@ function renderCircle(p, r, c){
 	canvasCtx.fill();
 }
 
-function renderLine(v1, v2, c){
-  // Draws line from v1 to v2 with color c
+// Draws a line to the canvas
+function drawLine(v1, v2, c){
   v1 = gameToAbs(v1)
   v2 = gameToAbs(v2)
   canvasCtx.beginPath();

@@ -1,8 +1,9 @@
 // Runs the game world
 
 // Arbitrary constants
-dt = .25
+dt = 1
 gravity = 1000
+mouseMax = 200
 
 // Defines mouse properties
 mouse = {
@@ -11,7 +12,7 @@ mouse = {
   vel: zeroVector(2)
 }
 
-// Defines player properties
+// Defines player object
 function playerObject() {
   this.pos = zeroVector(2)
   this.vel = zeroVector(2)
@@ -31,18 +32,16 @@ function playerObject() {
   
   // Changes velocity and position
   this.update = function() {
-    // TODD: Should dt be an argument?
-    
     // Updates player velocity
-    this.vel = this.vel.add(this.accel)
+    this.vel = this.vel.add(this.accel.scale(dt))
     
     // Updates player position
-    this.pos = this.pos.add(this.vel)
+    this.pos = this.pos.add(this.vel.scale(dt))
   }
   
   // Draws the player
   this.render = function() {
-    renderCircle(zeroVector(2), this.radius, this.color)
+    fillCircle(zeroVector(2), this.radius, this.color)
   }
 }
 
@@ -62,10 +61,11 @@ function planet(pos, radius, color) {
   }
   
   this.render = function() {
-    renderCircle(player.rel(this.pos), this.radius, this.color)
+    fillCircle(player.rel(this.pos), this.radius, this.color)
   }
 }
 
+// Calcualtes acceleration from planets
 function applyGravity(player1, planets1) {
   player1.accel = zeroVector(2)
   
@@ -81,12 +81,18 @@ function applyGravity(player1, planets1) {
 
 function controlScheme1(player1, mouse1) {
   // Mouse position accelerates the player
-  mouseForceScale = 1/150.
-  player1.accel = player1.accel.add(mouse.relPos.scale(dt * mouseForceScale))
+  mouseForceScale = 1/300.
+  player1.accel = player1.accel.add(mouse.relPos.scale(mouseForceScale))
+}
+
+function controlScheme2(player1, mouse1) {
+  // Mouse position accelerates the player, limited to a distance of mouseMax away from the player
+  mouseForceScale = 1/250.
+  player1.accel = player1.accel.add(mouse.relPos.limit(mouseMax).scale(mouseForceScale))
 }
 
 // -- Set the control scheme here --
-controlScheme = controlScheme1
+controlScheme = controlScheme2
 
 
 // Collision handling
