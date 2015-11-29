@@ -12,17 +12,36 @@ mouse = {
 }
 
 // Defines player properties
-player = {
-  pos: zeroVector(2),
-  vel: zeroVector(2),
-  accel: zeroVector(2),
-  color: "red",
-  radius: 10,
-  rel: function(v) {
-    // Returns the position of v relative to the player
+function playerObject() {
+  this.pos = zeroVector(2)
+  this.vel = zeroVector(2)
+  this.accel = zeroVector(2)
+  this.color = "red"
+  this.radius = 10
+  
+  // Returns the relative position of v to the player
+  this.rel = function(v) {
     return v.subtract(this.pos)
-  },
-  render: function() {
+  }
+  
+  // Resets the player for a new physics step
+  this.reset = function() {
+    this.accel = zeroVector(2)
+  }
+  
+  // Changes velocity and position
+  this.update = function() {
+    // TODD: Should dt be an argument?
+    
+    // Updates player velocity
+    this.vel = this.vel.add(this.accel)
+    
+    // Updates player position
+    this.pos = this.pos.add(this.vel)
+  }
+  
+  // Draws the player
+  this.render = function() {
     renderCircle(zeroVector(2), this.radius, this.color)
   }
 }
@@ -47,17 +66,7 @@ function planet(pos, radius, color) {
   }
 }
 
-// Control schemes here
-// A control scheme specifies:
-// 1) What do planets do to the player?
-// 2) What does the mouse do to the player?
-// 3) Whose position changes? (Player? Planets?)
-
-function controlScheme1(player1, planets1, mouse1) {
-  // Planet positions accelerate the player
-  // Mouse position accelerates the player
-  // Player moves
-  
+function applyGravity(player1, planets1) {
   player1.accel = zeroVector(2)
   
   // Adds planet accel
@@ -65,19 +74,18 @@ function controlScheme1(player1, planets1, mouse1) {
     player1.accel = player1.accel.add(p.getForce(player.rel(p.pos)))
   }
   planets1.forEach(addPlanetForce)
-  
-  // Adds mouse accel
-  mouseForceScale = 1/150.
-  player1.accel = player1.accel.add(mouse.relPos.scale(dt * mouseForceScale))
-  
-  // Updates player velocity
-  player1.vel = player1.vel.add(player1.accel)
-  
-  // Updates player position
-  player1.pos = player1.pos.add(player1.vel)
 }
 
-// Set the control scheme here
+// -- Control schemes here --
+// A control scheme specifies what the mouse does to the player
+
+function controlScheme1(player1, mouse1) {
+  // Mouse position accelerates the player
+  mouseForceScale = 1/150.
+  player1.accel = player1.accel.add(mouse.relPos.scale(dt * mouseForceScale))
+}
+
+// -- Set the control scheme here --
 controlScheme = controlScheme1
 
 
@@ -116,4 +124,21 @@ function resolveCollision(player1, planet1) {
     parallelVel = player1.vel.project(distVector)
     player1.vel = player1.vel.subtract(parallelVel.scale(2))
   }
+}
+
+// A single step of physics in the world
+function updateWorld(player1, planets1, mouse1) {
+  // Updates the player's acceleration
+  player1.reset()
+  applyGravity(player1, planets1)
+  controlScheme(player1, mouse1)
+  
+  // Deals with collisions
+  collisionPlanet = detectCollision(player1, planets1)
+  if(collisionPlanet) {
+    resolveCollision(player1, collisionPlanet)
+  }
+  
+  // Updates the player
+  player1.update()
 }

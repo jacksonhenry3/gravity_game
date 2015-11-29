@@ -2,29 +2,6 @@
 
 physicsStepTime = 25
 
-// Controls sound and color
-function updateColorAndSound() {
-  oscillator.frequency.value = player.vel.magnitude()*20;
-  if (colors == 1)
-  {
-    gainNode.gain.value = .1;
-    $('#space').css('background',"hsl("+Math.atan2(player.vel.y, player.vel.x)/(2*Math.PI)*360+","+2*player.vel.magnitude()+"%,10%)")
-  }
-  else  
-  {
-    gainNode.gain.value =0;
-  }
-}
-
-// Generates a list of positions and radii for the dummy circles
-planets = []
-for (var i = 0; i < 5; i++) {
-  r = 10+Math.random()*30
-  p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
-  planets.push(new planet(p, r))
-}
-colors = -1
-
 // Registers space to toggle colors
 function registerColorAndSoundToggle() {
   $(window).keypress(function (e) {
@@ -52,17 +29,35 @@ function registerMouseEvents() {
 }
 registerMouseEvents()
 
-// A single step of the physics
-function physicsStep()
-{
-  // Controls the player's motion
-  controlScheme(player, planets, mouse)
-  
-  // Deals with collisions
-  collisionPlanet = detectCollision(player, planets)
-  if(collisionPlanet) {
-    resolveCollision(player, collisionPlanet)
+// Controls sound and color
+function updateColorAndSound(player1) {
+  oscillator.frequency.value = player1.vel.magnitude()*20;
+  if (colors == 1)
+  {
+    gainNode.gain.value = .1;
+    $('#space').css('background',"hsl("+Math.atan2(player1.vel.y, player1.vel.x)/(2*Math.PI)*360+","+2*player1.vel.magnitude()+"%,10%)")
   }
+  else  
+  {
+    gainNode.gain.value =0;
+  }
+}
+colors = -1
+
+// Creates the player
+player = new playerObject()
+
+// Generates a list of positions and radii for the dummy circles
+planets = []
+for (var i = 0; i < 5; i++) {
+  r = 10+Math.random()*30
+  p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
+  planets.push(new planet(p, r))
+}
+
+// A single step of the physics
+physicsStep = function() {
+  updateWorld(player, planets, mouse)
 }
 setInterval(physicsStep, 25);
 
@@ -86,7 +81,7 @@ function renderStep()
   renderLine(zeroVector(), currVel, "green")
   
   // Handles colors and sounds
-  updateColorAndSound()
+  updateColorAndSound(player)
 
   window.requestAnimationFrame(renderStep);
 }
