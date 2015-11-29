@@ -9,16 +9,55 @@ function setBgColor(color) {
     $('#space').css('background',color)
 }
 
-// All necessary code for setting sound and color to zero
-function disableSoundAndColor() {
-  gainNode.gain.value = 0
-  setBgColor("black")
-}
-
 // Control schemes for sound and color here
 
 function updateColor1(player1) {
-  setBgColor("hsl("+Math.atan2(player1.vel.y, player1.vel.x)/(2*Math.PI)*360+","+2*player1.vel.magnitude()+"%,10%)")
+  // Changes the background color based on the player's velocity
+  h = Math.atan2(player1.vel.y, player1.vel.x)/(2*Math.PI)*360
+  s = 2*player1.vel.magnitude()
+  l = 10
+  setBgColor(hsl(h,s,l))
+}
+
+updateColor2Data = {
+  initialized: false,
+  colorRatio: 0.,
+}
+function updateColor2(player1) {
+  // Changes the background color on collision
+  // Smoothely returns it to the normal color over time
+  
+  // Color choices
+  normal = {r:0, g:0, b:0}
+  collision = {r:50, g:0, b:0}
+  
+  // Amount of color change per tick
+  ratioDrop = 0.05
+  
+  // Adds a callback function to change background color on collision
+  // Only adds this function if updateColor2 is running for the first time
+  if(!updateColor2Data.initialized) {
+    function changeBgOnCollision(planet1) {
+      // Changes the color ratio to 1
+      updateColor2Data.colorRatio = 1
+    }
+    runOnCollision(changeBgOnCollision)
+    
+    updateColor2Data.initialized = true
+  }
+  
+  // Determines and sets the color
+  currRatio = updateColor2Data.colorRatio
+  currColor = {
+    r: Math.round(smoothScale(normal.r, collision.r, currRatio)),
+    g: Math.round(smoothScale(normal.g, collision.g, currRatio)),
+    b: Math.round(smoothScale(normal.b, collision.b, currRatio))
+  }
+  setBgColor(rgb(currColor.r, currColor.g, currColor.b))
+  
+  // Updates the current ratio
+  newRatio = updateColor2Data.colorRatio - ratioDrop
+  updateColor2Data.colorRatio = Math.max(newRatio, 0)
 }
 
 function updateSound1(player1) {
@@ -31,10 +70,17 @@ function updateSound2(player1) {
   gainNode.gain.value = player1.vel.magnitude() * 1/1000.;
 }
 
-
 // Choose color and sound control scheme here
+updateColor = updateColor2
 updateSound = updateSound2
-updateColor = updateColor1
+
+// All necessary code for setting sound and color to zero
+function disableSoundAndColor() {
+  gainNode.gain.value = 0
+  setBgColor("black")
+  
+  updateColor2Data.colorRatio = 0
+}
 
 function updateColorAndSound(player1) {
   if(colors == 1) {

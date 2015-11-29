@@ -6,6 +6,17 @@ center        = new vector([w/2,h/2]);
 canvas.width  = w
 canvas.height = h
 
+// Creates an rgb color string from arguments r, g, b
+function rgb(r, g, b) {
+	return "rgb("+r+","+g+","+b+")"
+} 
+
+// Creates an hsl color string from arguments h, s, l
+function hsl(h, s, l) {
+	return "hsl("+h+","+s+"%,"+l+"%)"
+} 
+
+
 // Converts from game coordinates to absolute coordinates
 function absToGame(abs_vec){
   game_vec = new vector([abs_vec.x-center.x, -abs_vec.y+center.y]);

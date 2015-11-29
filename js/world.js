@@ -132,6 +132,13 @@ function resolveCollision(player1, planet1) {
   }
 }
 
+// An array of callback functions for onCollision
+// On a collision with planet p1, each function f in onCollision will be called: f(p1)
+onCollision = []
+function runOnCollision(f) {
+  onCollision.push(f)
+}
+
 // A single step of physics in the world
 function updateWorld(player1, planets1, mouse1) {
   // Updates the player's acceleration
@@ -142,7 +149,11 @@ function updateWorld(player1, planets1, mouse1) {
   // Deals with collisions
   collisionPlanet = detectCollision(player1, planets1)
   if(collisionPlanet) {
+    // Resolves collisions
     resolveCollision(player1, collisionPlanet)
+    
+    // Runs callback functions
+    runAll(onCollision, collisionPlanet)
   }
   
   // Updates the player
