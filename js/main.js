@@ -67,7 +67,7 @@ function updateSound1(player1) {
 
 function updateSound2(player1) {
   oscillator.frequency.value = 100 + player.vel.magnitude()/2.;
-  gainNode.gain.value = player1.vel.magnitude() * 1/1000.;
+  gainNode.gain.value = Math.min(player1.vel.magnitude() * 1/1000., 0.1);
 }
 
 // Choose color and sound control scheme here
@@ -117,6 +117,19 @@ function registerColorAndSoundToggle() {
   })
 }
 registerColorAndSoundToggle()
+
+// Registers reset
+function registerReset() {
+  $(window).keypress(function (e) {
+    if (e.keyCode === 114) {
+      e.preventDefault()
+      player.pos = zeroVector(2)
+      player.vel = zeroVector(2)
+    }
+  })
+}
+registerReset()
+
 
 // Records mouse events to the mouse object
 function registerMouseEvents() {
