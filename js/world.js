@@ -46,9 +46,10 @@ function playerObject() {
 }
 
 // Defines planet object
-function planet(pos, radius, color) {
+function planet(pos, radius, mass, color) {
   this.pos = pos
   this.radius = radius
+  this.mass = mass
   
   // If no color is specified, defaults to white
   this.color = (color || "white")
@@ -56,7 +57,7 @@ function planet(pos, radius, color) {
   this.getForce = function(dVector) {
     // Calculates inverse square force
     d = dVector.magnitude()
-    forceMag = gravity / (d*d)
+    forceMag = gravity * this.mass / (d*d)
     return dVector.norm().scale(forceMag)
   }
   

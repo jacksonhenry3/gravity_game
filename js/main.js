@@ -102,7 +102,10 @@ planets = []
 for (var i = 0; i < 5; i++) {
   r = 10+Math.random()*30
   p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
-  planets.push(new planet(p, r))
+  m = Math.pow(r,2) / 400.
+  c = "white"
+  console.log(c)
+  planets.push(new planet(p, r, m, c))
 }
 
 // -- Registers key events --
