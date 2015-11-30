@@ -29,7 +29,7 @@ function updateColor2(player1) {
   
   // Color choices
   normal = {r:0, g:0, b:0}
-  collision = {r:50, g:0, b:0}
+  collision = {r:0, g:50, b:0}
   
   // Amount of color change per tick
   ratioDrop = 0.05
@@ -67,12 +67,37 @@ function updateSound1(player1) {
 
 function updateSound2(player1) {
   oscillator.frequency.value = 100 + player.vel.magnitude()/2.;
-  gainNode.gain.value = Math.min(player1.vel.magnitude() * 1/1000., 0.1);
+  gainNode.gain.value = Math.min(player1.vel.magnitude() * 1/1000., 0.02);
+}
+
+
+updateSound3Data = {
+  initialized: false,
+  midiNote: 0.
+}
+function updateSound3(player1) {
+  // Changes frequency on collision
+  gainNode.gain.value = Math.min(player1.vel.magnitude() * 1/1000., 0.02);
+  
+  // Adds a callback function to change frequency on collision
+  // Only adds this function if updateSound3 is running for the first time
+  if(!updateSound3Data.initialized) {
+    function changeSoundOnCollision(planet1) {
+      updateSound3Data.midiNote = Math.random() * 24
+    }
+    runOnCollision(changeSoundOnCollision)
+    
+    updateSound3Data.initialized = true
+  }
+  
+  // Calculates and sets the frequency
+  freq = midiToFreq(updateSound3Data.midiNote + 30)
+  oscillator.frequency.value = freq;
 }
 
 // Choose color and sound control scheme here
 updateColor = updateColor2
-updateSound = updateSound2
+updateSound = updateSound3
 
 // All necessary code for setting sound and color to zero
 function disableSoundAndColor() {
@@ -104,7 +129,6 @@ for (var i = 0; i < 5; i++) {
   p = new vector([ (Math.random()*2-1)*w/2, (Math.random()*2-1)*h/2])
   m = Math.pow(r,2) / 400.
   c = "white"
-  console.log(c)
   planets.push(new planet(p, r, m, c))
 }
 
